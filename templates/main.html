@@ -31,7 +31,12 @@
             <img src="data:image/png;base64,{{image_1}}" />
             </P>
             <p>
-            <a class="btn btn-success" href="/">Left</a>
+              <form action="/vote/0" method="post">
+                <input type="hidden" name="left" value="{{style_1}}">
+                <input type="hidden" name="right" value="{{style_2}}">
+                <button class="btn btn-success" href="/" type='submit'>Left
+                </button>
+              </form>
             </p>
           </div>
 
@@ -40,7 +45,12 @@
             <img src="data:image/png;base64,{{image_2}}" />
             </p>
             <p>
-            <a class="btn btn-success" href="/">Right</a>
+              <form action="/vote/1" method="post">
+                <input type="hidden" name="left" value="{{style_1}}">
+                <input type="hidden" name="right" value="{{style_2}}">
+                <button class="btn btn-success" href="/" type='submit'>Right
+                </button>
+              </form>
             </p>
           </div>
         </div>
