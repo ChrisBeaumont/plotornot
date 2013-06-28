@@ -34,13 +34,13 @@ def mpl_figure_data(f):
     return data
 
 def plot_generator():
-    plot_function = random.choice(['plot', 'hist', 'scatter', 'contour'])
+    plot_function = random.choice(['plot', 'hist', 'contour'])
     
     N_points = 100
     N_datasets = np.random.randint(2, 8)
     data = []
     for ii in range(N_datasets):
-        if plot_function in ['plot', 'scatter']:
+        if plot_function == 'plot':
             x = np.linspace(0., 10., N_points)
             A = np.random.uniform(0., 5)
             B = np.random.uniform(0., 5)
