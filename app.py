@@ -103,7 +103,6 @@ def plot_generator():
             kwargs['cmap'] = cmap
 
         with rc_context(style):
-            rcParams['figure.dpi'] = 75
             rcParams['figure.facecolor'] = '#ffffff'
 
             fig, ax = plt.subplots(1, 1, figsize=(6, 4))
