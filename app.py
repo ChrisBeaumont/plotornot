@@ -17,15 +17,52 @@ from flask import Flask, send_file, request, render_template
 from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
 import matplotlib.pyplot as plt
 from matplotlib.mlab import bivariate_normal
+from matplotlib.lines import Line2D
 import numpy as np
 
 app = Flask(__name__)
 
+# 'axes.color_cycle' : [],
+randomize_rc = {'lines.marker' : Line2D.markers.keys(), 
+                'lines.markeredgewidth' : np.arange(0,3,dtype=int),
+                'lines.markersize' : np.arange(1,5,dtype=int)*10,
+                'lines.linewidth' : np.arange(1,5,dtype=int),
+                'lines.linestyle' : Line2D.lineStyles.keys(),
+                'axes.edgecolor' : [(0.,0.,0.,x) for x in np.random.uniform(0., 0.5, size=10)],
+                'axes.facecolor' : [(0.,0.,0.,x) for x in np.random.uniform(0.5, 1.0, size=10)],
+                'axes.linewidth' : np.arange(1,5,dtype=int)}
+
+def random_rc_pair(rcParams):
+    """ Given a full rcParams dict, return two copies with one of the above 
+        keys changed. 
+    """
+    rc1 = rcParams.copy()
+    rc2 = rcParams.copy()
+    
+    param_to_change = random.choice(randomize_rc.keys())
+    param_list = randomize_rc[param_to_change]
+    random.shuffle(param_list)
+    
+    p1,p2 = param_list[:2]
+        
+    rc1[param_to_change] = p1
+    rc2[param_to_change] = p2
+    
+    return rc1, rc2
+    
 def get_styles():
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
     random.shuffle(files)
-    return [json.load(open(f)) for f in files[:2]]
+    
+    styles = []
+    for f in files[:2]:
+        this_rc = rcParamsDefault.copy()
+        s = json.load(open(f))
+        for k,v in s.items():
+            this_rc[k] = v
+        styles.append(this_rc)
+    return styles
 
 def mpl_figure_data(f):
     data = StringIO()
@@ -84,8 +121,10 @@ def plot_generator():
     return make_plot
 @app.route("/")
 def main():
-    s1, s2 = get_styles()
-    assert s1 != s2
+    #s1, s2 = get_styles()
+    #assert s1 != s2
+    
+    s1, s2 = random_rc_pair(rcParamsDefault)
     
     plot_func = plot_generator()
     d1, d2 =  map(plot_func, (s1, s2))
