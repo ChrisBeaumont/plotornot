@@ -6,14 +6,16 @@ from cStringIO import StringIO
 from urllib import urlopen
 import json
 from random import shuffle
+from glob import glob
 
 app = Flask(__name__)
 
 def get_styles():
-    options = [rcParamsOrig, json.load(urlopen('https://raw.github.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/master/styles/bmh_matplotlibrc.json'))]
-    options.extend(color_brewer_cycles())
-    shuffle(options)
-    return options[:2]
+    '''Return 2 random rcParams styles'''
+    files = glob('params/*')
+    shuffle(files)
+    return [json.load(open(f)) for f in files[:2]]
+
 
 def mpl_figure_data(f):
     data = StringIO()
