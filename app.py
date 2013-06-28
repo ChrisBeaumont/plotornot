@@ -1,3 +1,11 @@
+# coding: utf-8
+
+""" Plot or Not! """
+
+from __future__ import division, print_function
+
+# Standard library
+import os, sys
 from flask import Flask, send_file, request, render_template, redirect
 from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
 import matplotlib.pyplot as plt
@@ -9,11 +17,17 @@ import json
 import random
 from glob import glob
 
+# Third-party
+from flask import Flask, send_file, request, render_template
+from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
+import matplotlib.pyplot as plt
+from matplotlib.mlab import bivariate_normal
+import numpy as np
+
 app = Flask(__name__)
 
 
 def get_styles():
-
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
     random.shuffle(files)
@@ -26,23 +40,21 @@ def mpl_figure_data(f):
     data = data.getvalue().encode('base64')
     return data
 
-def color_brewer_cycles():
-    return [{'axes.color_cycle': ['#E41A1C', '#377EB8', '#4DAF4A',
-             '#984EA3', '#FF7F00']},
-             {'axes.color_cycle': ['#7FC97F', '#BEAED4', '#FDC086',
-              '#FDC086', '#FFF99', '#386CDO']}
-            ]
-
 def plot_generator():
-    plot_function = random.choice(['plot', 'hist', 'scatter', 'contour'])
+    plot_function = random.choice(['plot', 'hist', 'contour'])
 
     N_points = 100
     N_datasets = np.random.randint(2, 8)
     data = []
     for ii in range(N_datasets):
-        if plot_function in ['plot', 'scatter']:
+        if plot_function == 'plot':
             x = np.linspace(0., 10., N_points)
-            y_func = random.choice([lambda x: 0.1*x, lambda x: 0.1*x**2, np.sin, np.cos])
+            A = np.random.uniform(0., 5)
+            B = np.random.uniform(0., 5)
+            y_func = random.choice([lambda x: 0.1*A*x + B,
+                                    lambda x: 0.1*A*x**2 + B,
+                                    lambda x: A*np.sin(B*x),
+                                    lambda x: A*np.cos(B*x)])
             y = y_func(x)
             d = (x, y)
         elif plot_function == 'hist':
@@ -60,7 +72,7 @@ def plot_generator():
             d = (X,Y,Z)
         data.append(d)
 
-    kwargs = dict(alpha=np.sqrt(np.random.random()))
+    kwargs = dict(alpha=np.random.uniform(0.5,1.))
     def make_plot(style):
         with rc_context(style):
             rcParams['figure.dpi'] = 75
@@ -91,7 +103,7 @@ def serve_page():
 
 
 def save_vote(win, lose):
-    print '%s beats %s' % (win, lose)
+    print('%s beats %s' % (win, lose))
 
 
 @app.route('/vote/<int:winner>', methods=['POST'])
