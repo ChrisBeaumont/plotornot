@@ -35,7 +35,7 @@ def get_styles():
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
     random.shuffle(files)
-    
+
     styles = []
     for f in files[:2]:
         this_rc = rcParamsDefault.copy()
@@ -43,7 +43,7 @@ def get_styles():
             s = json.load(open(f))
         else:
             s = rc_params_from_file(f)
-            
+
         for k,v in s.items():
             this_rc[k] = v
         styles.append(this_rc)
@@ -84,7 +84,7 @@ def plot_generator():
                                  np.random.uniform(1, 3),
                                  np.random.uniform(0, N_datasets*5),
                                  np.random.uniform(0, N_datasets*5))
-            
+
             if len(data) == 0:
                 d = [X,Y,Z]
             else:
@@ -96,7 +96,7 @@ def plot_generator():
         cmap = style.pop('cmap', None)
         if cmap is not None:
             kwargs['cmap'] = cmap
-        
+
         with rc_context(style):
             rcParams['figure.dpi'] = 75
             rcParams['figure.facecolor'] = '#ffffff'
@@ -118,13 +118,13 @@ def serve_page():
     assert s1 != s2
 
     plot_type, plot_func = plot_generator()
-    
+
     if plot_type == 'contourf':
         random.shuffle(_all_colormaps)
         cmap1,cmap2 = _all_colormaps[:2]
         s1['cmap'] = cmap1
         s2['cmap'] = cmap2
-    
+
     d1, d2 =  map(plot_func, (s1, s2))
 
     return render_template('main.html', image_1=d1, image_2=d2,
@@ -132,26 +132,28 @@ def serve_page():
                            plot_type=plot_type)
 
 
-def save_vote(win, lose, plot_id=0):
+def save_vote(win, lose, plot_type=0):
     uri = os.environ.get('MONGOLAB_URI')
 
-    post = {'win': win, 'lose': lose, 'plot_id': plot_id}
+    post = {'win': win, 'lose': lose, 'plot_type': plot_type}
 
     client = pymongo.MongoClient(uri)
     db = client.heroku_app16597650
     db.votes.insert(post)
+
 
 @app.route('/vote/<int:winner>', methods=['POST'])
 def vote(winner):
     data = request.values
     left = data['left']
     right = data['right']
+    plot_type = data['plot_type']
 
     if winner == 0:
         win, lose = left, right
     else:
         win, lose = right, left
-    save_vote(win, lose)
+    save_vote(win, lose, plot_type)
 
     return redirect('/')
 
