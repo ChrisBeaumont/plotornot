@@ -28,6 +28,8 @@ import numpy as np
 
 app = Flask(__name__)
 
+_all_colormaps = [m for m in plt.cm.datad]
+
 def get_styles():
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
@@ -90,6 +92,10 @@ def plot_generator():
 
     kwargs = dict(alpha=np.random.uniform(0.5,1.))
     def make_plot(style):
+        cmap = style.pop('cmap', None)
+        if cmap is not None:
+            kwargs['cmap'] = cmap
+        
         with rc_context(style):
             rcParams['figure.dpi'] = 75
             rcParams['figure.facecolor'] = '#ffffff'
@@ -111,6 +117,13 @@ def serve_page():
     assert s1 != s2
 
     plot_type, plot_func = plot_generator()
+    
+    if plot_type == 'contourf':
+        random.shuffle(_all_colormaps)
+        cmap1,cmap2 = _all_colormaps[:2]
+        s1['cmap'] = cmap1
+        s2['cmap'] = cmap2
+    
     d1, d2 =  map(plot_func, (s1, s2))
 
     return render_template('main.html', image_1=d1, image_2=d2,
