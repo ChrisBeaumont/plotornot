@@ -41,7 +41,6 @@ def get_styles():
         styles.append(this_rc)
     return styles
 
-
 def mpl_figure_data(f):
     data = StringIO()
     f.canvas.print_png(data)
@@ -77,7 +76,11 @@ def plot_generator():
                                  np.random.uniform(1, 3),
                                  np.random.uniform(0, N_datasets*5),
                                  np.random.uniform(0, N_datasets*5))
-            d = (X,Y,Z)
+            
+            if len(data) == 0:
+                d = [X,Y,Z]
+            else:
+                data[0][2] += Z
         data.append(d)
 
     kwargs = dict(alpha=np.random.uniform(0.5,1.))
