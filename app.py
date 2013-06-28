@@ -5,7 +5,8 @@
 from __future__ import division, print_function
 
 # Standard library
-import os, sys
+import os
+import sys
 from flask import Flask, send_file, request, render_template, redirect
 from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ from glob import glob
 # Third-party
 from flask import Flask, send_file, request, render_template
 from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig,\
-                       rc_params_from_file
+    rc_params_from_file
 import matplotlib.pyplot as plt
 from matplotlib.mlab import bivariate_normal
 from matplotlib.lines import Line2D
@@ -30,6 +31,7 @@ import pymongo
 app = Flask(__name__)
 
 _all_colormaps = [m for m in plt.cm.datad]
+
 
 def get_styles():
     '''Return 2 random rcParams styles'''
@@ -44,16 +46,18 @@ def get_styles():
         else:
             s = rc_params_from_file(f)
 
-        for k,v in s.items():
+        for k, v in s.items():
             this_rc[k] = v
         styles.append(this_rc)
     return styles
+
 
 def mpl_figure_data(f):
     data = StringIO()
     f.canvas.print_png(data)
     data = data.getvalue().encode('base64')
     return data
+
 
 def plot_generator():
     plot_function = random.choice(['plot', 'hist', 'contourf'])
@@ -66,32 +70,33 @@ def plot_generator():
             x = np.linspace(0., 10., N_points)
             A = np.random.uniform(-5., 5)
             B = np.random.uniform(-5., 5)
-            y_func = random.choice([lambda x: 0.1*A*x + B,
-                                    lambda x: 0.1*A*x**2 + B,
-                                    lambda x: A*np.sin(B*x),
-                                    lambda x: A*np.cos(B*x)])
+            y_func = random.choice([lambda x: 0.1 * A * x + B,
+                                    lambda x: 0.1 * A * x ** 2 + B,
+                                    lambda x: A * np.sin(B * x),
+                                    lambda x: A * np.cos(B * x)])
             y = y_func(x)
             d = (x, y)
         elif plot_function == 'hist':
-            d = (np.random.normal(np.random.uniform(0, N_datasets*5),
+            d = (np.random.normal(np.random.uniform(0, N_datasets * 5),
                                   np.random.uniform(1, 3),
                                   size=N_points), )
         elif plot_function == 'contourf':
-            X, Y = np.meshgrid(np.linspace(0, N_datasets*5, N_points),
-                               np.linspace(0, N_datasets*5, N_points))
+            X, Y = np.meshgrid(np.linspace(0, N_datasets * 5, N_points),
+                               np.linspace(0, N_datasets * 5, N_points))
             Z = bivariate_normal(X, Y,
                                  np.random.uniform(1, 3),
                                  np.random.uniform(1, 3),
-                                 np.random.uniform(0, N_datasets*5),
-                                 np.random.uniform(0, N_datasets*5))
+                                 np.random.uniform(0, N_datasets * 5),
+                                 np.random.uniform(0, N_datasets * 5))
 
             if len(data) == 0:
-                d = [X,Y,Z]
+                d = [X, Y, Z]
             else:
                 data[0][2] += Z
         data.append(d)
 
-    kwargs = dict(alpha=np.random.uniform(0.5,1.))
+    kwargs = dict(alpha=np.random.uniform(0.5, 1.))
+
     def make_plot(style):
         cmap = style.pop('cmap', None)
         if cmap is not None:
@@ -101,7 +106,7 @@ def plot_generator():
             rcParams['figure.dpi'] = 75
             rcParams['figure.facecolor'] = '#ffffff'
 
-            fig,ax = plt.subplots(1,1,figsize=(6,4))
+            fig, ax = plt.subplots(1, 1, figsize=(6, 4))
             for d in data:
                 getattr(ax, plot_function)(*d, **kwargs)
             ax.set_xlabel('The x axis')
@@ -113,6 +118,7 @@ def plot_generator():
 
     return plot_function, make_plot
 
+
 def serve_page():
     s1, s2 = get_styles()
     assert s1 != s2
@@ -121,11 +127,11 @@ def serve_page():
 
     if plot_type == 'contourf':
         random.shuffle(_all_colormaps)
-        cmap1,cmap2 = _all_colormaps[:2]
+        cmap1, cmap2 = _all_colormaps[:2]
         s1['cmap'] = cmap1
         s2['cmap'] = cmap2
 
-    d1, d2 =  map(plot_func, (s1, s2))
+    d1, d2 = map(plot_func, (s1, s2))
 
     return render_template('main.html', image_1=d1, image_2=d2,
                            style_1=json.dumps(s1), style_2=json.dumps(s2),
@@ -167,4 +173,4 @@ def main():
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     debug = '--debug' in sys.argv
-    app.run(host='0.0.0.0', port=port)#, debug=debug)
+    app.run(host='0.0.0.0', port=port)  # , debug=debug)
