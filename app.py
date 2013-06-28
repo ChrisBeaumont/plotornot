@@ -138,7 +138,7 @@ def save_vote(win, lose, plot_id=0):
     post = {'win': win, 'lose': lose, 'plot_id': plot_id}
 
     client = pymongo.MongoClient(uri)
-    db = client.votes
+    db = client.heroku_app16597650
     db.votes.insert(post)
 
 @app.route('/vote/<int:winner>', methods=['POST'])
