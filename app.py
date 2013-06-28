@@ -133,7 +133,9 @@ def serve_page():
 
 
 def save_vote(win, lose, plot_type=0):
-    uri = os.environ.get('MONGOLAB_URI')
+    uri = os.environ.get('MONGOLAB_URI', None)
+    if uri is None:
+        return
 
     post = {'win': win, 'lose': lose, 'plot_type': plot_type}
 
