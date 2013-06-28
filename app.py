@@ -19,7 +19,8 @@ from glob import glob
 
 # Third-party
 from flask import Flask, send_file, request, render_template
-from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
+from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig,\
+                       rc_params_from_file
 import matplotlib.pyplot as plt
 from matplotlib.mlab import bivariate_normal
 from matplotlib.lines import Line2D
@@ -35,7 +36,11 @@ def get_styles():
     styles = []
     for f in files[:2]:
         this_rc = rcParamsDefault.copy()
-        s = json.load(open(f))
+        if os.path.splitext(f)[1] == '.json':
+            s = json.load(open(f))
+        else:
+            s = rc_params_from_file(f)
+            
         for k,v in s.items():
             this_rc[k] = v
         styles.append(this_rc)
