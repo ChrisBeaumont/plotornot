@@ -1,18 +1,27 @@
-from flask import Flask, send_file, request, render_template
-from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
-import matplotlib.pyplot as plt
-from matplotlib.mlab import bivariate_normal
-import numpy as np
+# coding: utf-8
+
+""" Plot or Not! """
+
+from __future__ import division, print_function
+
+# Standard library
+import os, sys
 from cStringIO import StringIO
 from urllib import urlopen
 import json
 import random
 from glob import glob
 
+# Third-party
+from flask import Flask, send_file, request, render_template
+from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
+import matplotlib.pyplot as plt
+from matplotlib.mlab import bivariate_normal
+import numpy as np
+
 app = Flask(__name__)
 
 def get_styles():
-
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
     random.shuffle(files)
