@@ -22,6 +22,7 @@
     
     h1 {
         margin: 0px;
+        opacity: 0.85;
     }
     
     .hero-unit {
@@ -30,11 +31,6 @@
     
     .span12 {
         margin-left: 0px;
-    }
-    
-    .ew {
-        text-align: center;
-        height: 100%;
     }
     
     .plot {
@@ -54,7 +50,21 @@
             <p class="center">
             <img src="data:image/png;base64,{{image_1}}" />
             </P>
-            <p>
+          </div>
+          
+          <div class="span2 ew center">
+          </div>
+          
+          <div class="span5 plot">
+            <p class="center">
+            <img src="data:image/png;base64,{{image_2}}" />
+            </p>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="span5 plot">
+            <p class="center">
               <form action="/vote/0" method="post" align='center'>
                 <input type="hidden" name="left" value="{{style_1}}">
                 <input type="hidden" name="right" value="{{style_2}}">
@@ -65,15 +75,12 @@
             </p>
           </div>
           
-          <div class="span2 ew">
+          <div class="span2 ew center">
             <button class="btn btn-large btn-danger" href="/" type='submit'>Ew!
           </div>
           
           <div class="span5 plot">
             <p class="center">
-            <img src="data:image/png;base64,{{image_2}}" />
-            </p>
-            <p>
               <form action="/vote/1" method="post" align='center'>
                 <input type="hidden" name="left" value="{{style_1}}">
                 <input type="hidden" name="right" value="{{style_2}}">
@@ -83,7 +90,9 @@
               </form>
             </p>
           </div>
+          
         </div>
+        
       </div>
     </div>
 
