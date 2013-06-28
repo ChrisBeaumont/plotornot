@@ -49,7 +49,7 @@ def mpl_figure_data(f):
     return data
 
 def plot_generator():
-    plot_function = random.choice(['plot', 'hist', 'contour'])
+    plot_function = random.choice(['plot', 'hist', 'contourf'])
 
     N_points = 100
     N_datasets = np.random.randint(2, 8)
@@ -69,7 +69,7 @@ def plot_generator():
             d = (np.random.normal(np.random.uniform(0, N_datasets*5),
                                   np.random.uniform(1, 3),
                                   size=N_points), )
-        elif plot_function == 'contour':
+        elif plot_function == 'contourf':
             X, Y = np.meshgrid(np.linspace(0, N_datasets*5, N_points),
                                np.linspace(0, N_datasets*5, N_points))
             Z = bivariate_normal(X, Y,
@@ -96,17 +96,18 @@ def plot_generator():
             del fig
         return result
 
-    return make_plot
+    return plot_function, make_plot
 
 def serve_page():
     s1, s2 = get_styles()
     assert s1 != s2
 
-    plot_func = plot_generator()
+    plot_type, plot_func = plot_generator()
     d1, d2 =  map(plot_func, (s1, s2))
 
     return render_template('main.html', image_1=d1, image_2=d2,
-                           style_1=json.dumps(s1), style_2=json.dumps(s2))
+                           style_1=json.dumps(s1), style_2=json.dumps(s2),
+                           plot_type=plot_type)
 
 
 def save_vote(win, lose):
