@@ -27,34 +27,6 @@ import numpy as np
 
 app = Flask(__name__)
 
-# 'axes.color_cycle' : [],
-randomize_rc = {'lines.marker' : Line2D.markers.keys(), 
-                'lines.markeredgewidth' : np.arange(0,3,dtype=int),
-                'lines.markersize' : np.arange(1,5,dtype=int)*10,
-                'lines.linewidth' : np.arange(1,5,dtype=int),
-                'lines.linestyle' : Line2D.lineStyles.keys(),
-                'axes.edgecolor' : [(0.,0.,0.,x) for x in np.random.uniform(0., 0.5, size=10)],
-                'axes.facecolor' : [(0.,0.,0.,x) for x in np.random.uniform(0.5, 1.0, size=10)],
-                'axes.linewidth' : np.arange(1,5,dtype=int)}
-
-def random_rc_pair(rcParams):
-    """ Given a full rcParams dict, return two copies with one of the above 
-        keys changed. 
-    """
-    rc1 = rcParams.copy()
-    rc2 = rcParams.copy()
-    
-    param_to_change = random.choice(randomize_rc.keys())
-    param_list = randomize_rc[param_to_change]
-    random.shuffle(param_list)
-    
-    p1,p2 = param_list[:2]
-        
-    rc1[param_to_change] = p1
-    rc2[param_to_change] = p2
-    
-    return rc1, rc2
-    
 def get_styles():
     '''Return 2 random rcParams styles'''
     files = glob('params/*')
@@ -85,8 +57,8 @@ def plot_generator():
     for ii in range(N_datasets):
         if plot_function == 'plot':
             x = np.linspace(0., 10., N_points)
-            A = np.random.uniform(0., 5)
-            B = np.random.uniform(0., 5)
+            A = np.random.uniform(-5., 5)
+            B = np.random.uniform(-5., 5)
             y_func = random.choice([lambda x: 0.1*A*x + B,
                                     lambda x: 0.1*A*x**2 + B,
                                     lambda x: A*np.sin(B*x),
@@ -139,7 +111,6 @@ def serve_page():
 
 def save_vote(win, lose):
     print('%s beats %s' % (win, lose))
-
 
 @app.route('/vote/<int:winner>', methods=['POST'])
 def vote(winner):
