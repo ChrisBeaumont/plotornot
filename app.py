@@ -137,16 +137,23 @@ def serve_page():
                            plot_type=plot_type)
 
 
-def save_vote(win, lose, plot_type=0):
+def save_vote(win, lose, plot_type=0, tie=False):
     uri = os.environ.get('MONGOLAB_URI', None)
     if uri is None:
         return
 
-    post = {'win': win, 'lose': lose, 'plot_type': plot_type}
+    if tie:
+        post = {'win': win, 'lose': lose, 'plot_type': plot_type}
+    else:
+        post = {'tie_1': win, 'tie_2': lose, 'plot_type': plot_type}
 
-    client = pymongo.MongoClient(uri)
-    db = client.heroku_app16597650
-    db.votes.insert(post)
+    try:
+        client = pymongo.MongoClient(uri)
+        db = client.heroku_app16597650
+        db.votes.insert(post)
+    except pymongo.errors.OperationFailure:
+        pass
+
 
 
 @app.route('/vote/<int:winner>', methods=['POST'])
@@ -156,11 +163,16 @@ def vote(winner):
     right = data['right']
     plot_type = data['plot_type']
 
+    tie = False
     if winner == 0:
         win, lose = left, right
+    elif winner == 1:
+        win, lose = right, left
     else:
         win, lose = right, left
-    save_vote(win, lose, plot_type)
+        tie = True
+
+    save_vote(win, lose, plot_type, tie=tie)
 
     return redirect('/')
 
@@ -172,4 +184,4 @@ def main():
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     debug = '--debug' in sys.argv
-    app.run(host='0.0.0.0', port=port)  # , debug=debug)
+    app.run(host='0.0.0.0', port=port, debug=debug)
