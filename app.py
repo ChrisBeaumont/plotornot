@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 from matplotlib.mlab import bivariate_normal
 from matplotlib.lines import Line2D
 import numpy as np
+import pymongo
 
 app = Flask(__name__)
 
@@ -131,8 +132,14 @@ def serve_page():
                            plot_type=plot_type)
 
 
-def save_vote(win, lose):
-    print('%s beats %s' % (win, lose))
+def save_vote(win, lose, plot_id=0):
+    uri = os.environ.get('MONGOLAB_URI')
+
+    post = {'win': win, 'lose': lose, 'plot_id': plot_id}
+
+    client = pymongo.MongoClient(uri)
+    db = client.votes
+    db.votes.insert(post)
 
 @app.route('/vote/<int:winner>', methods=['POST'])
 def vote(winner):
@@ -156,4 +163,4 @@ def main():
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     debug = '--debug' in sys.argv
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port)#, debug=debug)
