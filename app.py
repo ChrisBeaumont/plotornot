@@ -1,18 +1,19 @@
 from flask import Flask, send_file, request, render_template
 from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
 import matplotlib.pyplot as plt
+from matplotlib.mlab import bivariate_normal
 import numpy as np
 from cStringIO import StringIO
 from urllib import urlopen
 import json
-from random import shuffle
+import random
 
 app = Flask(__name__)
 
 def get_styles():
     options = [rcParamsOrig, json.load(urlopen('https://raw.github.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/master/styles/bmh_matplotlibrc.json'))]
     options.extend(color_brewer_cycles())
-    shuffle(options)
+    random.shuffle(options)
     return options[:2]
 
 def mpl_figure_data(f):
@@ -28,33 +29,57 @@ def color_brewer_cycles():
               '#FDC086', '#FFF99', '#386CDO']}
             ]
 
-def make_plot(style):
-    with rc_context(style):
-        rcParams['figure.figsize'] = 6,4
-        rcParams['figure.dpi'] = 75
-        rcParams['figure.facecolor'] = '#ffffff'
-        plt.clf()
-        plt.cla()
-
-        np.random.seed(42)
-        x1 = np.random.normal(0, 1, (500,))
-        x2 = np.random.normal(3, 1, (300,))
-        x3 = np.random.normal(7, 2, (500,))
-        kwargs = dict(range=(-10, 20), alpha=.7)
-        plt.hist(x1, 50, **kwargs)
-        plt.hist(x2, 50, **kwargs)
-        plt.hist(x3, 50, **kwargs)
-        plt.xlabel('The x axis')
-        plt.ylabel('The y axis')
-        plt.gcf().set_facecolor('w')
-        result = mpl_figure_data(plt.gcf())
-    return result
-
+def plot_generator():
+    plot_function = random.choice(['plot', 'hist', 'scatter', 'contour'])
+    
+    N_points = 100
+    N_datasets = np.random.randint(2, 8)
+    data = []
+    for ii in range(N_datasets):
+        if plot_function in ['plot', 'scatter']:
+            x = np.linspace(0., 10., N_points)
+            y_func = random.choice([lambda x: 0.1*x, lambda x: 0.1*x**2, np.sin, np.cos])
+            y = y_func(x)
+            d = (x, y)
+        elif plot_function == 'hist':
+            d = (np.random.normal(np.random.uniform(0, N_datasets*5),
+                                  np.random.uniform(1, 3), 
+                                  size=N_points), )
+        elif plot_function == 'contour':
+            X, Y = np.meshgrid(np.linspace(0, N_datasets*5, N_points), 
+                               np.linspace(0, N_datasets*5, N_points))
+            Z = bivariate_normal(X, Y, 
+                                 np.random.uniform(1, 3),
+                                 np.random.uniform(1, 3),
+                                 np.random.uniform(0, N_datasets*5),
+                                 np.random.uniform(0, N_datasets*5))
+            d = (X,Y,Z)
+        data.append(d)
+    
+    kwargs = dict(alpha=np.sqrt(np.random.random()))
+    def make_plot(style):
+        with rc_context(style):
+            rcParams['figure.dpi'] = 75
+            rcParams['figure.facecolor'] = '#ffffff'
+            
+            fig,ax = plt.subplots(1,1,figsize=(6,4))
+            for d in data:    
+                getattr(ax, plot_function)(*d, **kwargs)
+            ax.set_xlabel('The x axis')
+            ax.set_ylabel('The y axis')
+            fig.set_facecolor('w')
+            result = mpl_figure_data(fig)
+            del fig
+        return result
+    
+    return make_plot
 @app.route("/")
 def main():
     s1, s2 = get_styles()
     assert s1 != s2
-    d1, d2 =  map(make_plot, (s1, s2))
+    
+    plot_func = plot_generator()
+    d1, d2 =  map(plot_func, (s1, s2))
     return render_template('main.html', image_1=d1, image_2=d2)
 
 
