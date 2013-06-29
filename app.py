@@ -7,24 +7,18 @@ from __future__ import division, print_function
 # Standard library
 import os
 import sys
-from flask import Flask, send_file, request, render_template, redirect
-from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig
-import matplotlib.pyplot as plt
-from matplotlib.mlab import bivariate_normal
-import numpy as np
 from cStringIO import StringIO
-from urllib import urlopen
 import json
 import random
 from glob import glob
 
 # Third-party
-from flask import Flask, send_file, request, render_template
-from matplotlib import rcParamsDefault, rc_context, rcParams, rcParamsOrig,\
-    rc_params_from_file
+from flask import Flask, request, render_template, redirect
+from matplotlib import (rcParamsDefault, rc_context,
+                        rcParams,
+                        rc_params_from_file)
 import matplotlib.pyplot as plt
 from matplotlib.mlab import bivariate_normal
-from matplotlib.lines import Line2D
 import numpy as np
 import pymongo
 
@@ -53,6 +47,7 @@ def get_styles():
 
 
 def mpl_figure_data(f):
+    """Convert a figure to a PNG data string"""
     data = StringIO()
     f.canvas.print_png(data)
     data = data.getvalue().encode('base64')
@@ -153,7 +148,6 @@ def save_vote(win, lose, plot_type=0, tie=False):
         db.votes.insert(post)
     except pymongo.errors.OperationFailure:
         pass
-
 
 
 @app.route('/vote/<int:winner>', methods=['POST'])
