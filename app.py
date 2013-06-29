@@ -6,7 +6,6 @@ from __future__ import division, print_function
 
 # Standard library
 import os
-import sys
 from cStringIO import StringIO
 import json
 import random
@@ -132,7 +131,7 @@ def serve_page():
                            style_1=json.dumps(s1), style_2=json.dumps(s2),
                            plot_type=plot_type)
     resp = make_response(html)
-    resp.set_cookie('user', request.get('user', str(random.randint(1, 1e0))))
+    resp.set_cookie('user', request.get('user', str(random.randint(1, 1e9))))
     return resp
 
 
@@ -180,5 +179,4 @@ def main():
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    debug = '--debug' in sys.argv
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port)
