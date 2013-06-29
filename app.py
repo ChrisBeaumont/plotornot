@@ -133,7 +133,7 @@ def serve_page():
                            plot_type=plot_type)
     resp = make_response(html)
     resp.set_cookie('user', request.get('user', str(random.randint(1, 1e0))))
-
+    return resp
 
 
 def save_vote(win, lose, plot_type=0, tie=False, **kwargs):
