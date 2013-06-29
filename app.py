@@ -93,6 +93,7 @@ def plot_generator():
     kwargs = dict(alpha=np.random.uniform(0.5, 1.))
 
     def make_plot(style):
+        style = style.copy()
         cmap = style.pop('cmap', None)
         if cmap is not None:
             kwargs['cmap'] = cmap
