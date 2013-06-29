@@ -13,7 +13,8 @@ import random
 from glob import glob
 
 # Third-party
-from flask import Flask, request, render_template, redirect
+from flask import (Flask, request, render_template,
+                   redirect, make_response, set_cookie)
 from matplotlib import (rcParamsDefault, rc_context,
                         rcParams,
                         rc_params_from_file)
@@ -127,20 +128,21 @@ def serve_page():
 
     d1, d2 = map(plot_func, (s1, s2))
 
-    return render_template('main.html', image_1=d1, image_2=d2,
+    html = render_template('main.html', image_1=d1, image_2=d2,
                            style_1=json.dumps(s1), style_2=json.dumps(s2),
                            plot_type=plot_type)
+    resp = make_response(html)
+    resp.set_cookie('user', request.get('user', str(random.randint(1, 1e0))))
 
 
-def save_vote(win, lose, plot_type=0, tie=False):
+
+def save_vote(win, lose, plot_type=0, tie=False, **kwargs):
     uri = os.environ.get('MONGOLAB_URI', None)
     if uri is None:
         return
 
-    if tie:
-        post = {'win': win, 'lose': lose, 'plot_type': plot_type}
-    else:
-        post = {'tie_1': win, 'tie_2': lose, 'plot_type': plot_type}
+    post = {'win': win, 'lose': lose, 'plot_type': plot_type, 'tie':tie}
+    post.update(**kwargs)
 
     try:
         client = pymongo.MongoClient(uri)
@@ -166,7 +168,8 @@ def vote(winner):
         win, lose = right, left
         tie = True
 
-    save_vote(win, lose, plot_type, tie=tie)
+    user = request.cookies.get('user', '')
+    save_vote(win, lose, plot_type, tie=tie, user=user)
 
     return redirect('/')
 
