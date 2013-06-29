@@ -13,7 +13,7 @@ from glob import glob
 
 # Third-party
 from flask import (Flask, request, render_template,
-                   redirect, make_response, set_cookie)
+                   redirect, make_response)
 from matplotlib import (rcParamsDefault, rc_context,
                         rcParams,
                         rc_params_from_file)
@@ -131,7 +131,8 @@ def serve_page():
                            style_1=json.dumps(s1), style_2=json.dumps(s2),
                            plot_type=plot_type)
     resp = make_response(html)
-    resp.set_cookie('user', request.get('user', str(random.randint(1, 1e9))))
+    user = request.cookies.get('user', str(random.randint(1, 1e9)))
+    resp.set_cookie('user', user)
     return resp
 
 
