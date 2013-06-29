@@ -27,6 +27,13 @@ app = Flask(__name__)
 _all_colormaps = [m for m in plt.cm.datad]
 
 def make_images():
+    """Return 2 images, computed on demand
+
+    Returns
+    -------
+    s1, s2 : The rcparams of each image
+    d1, d2 : Base-64 encoded strings of each png image
+    """
     s1, s2 = get_styles()
     assert s1 != s2
 
@@ -42,6 +49,14 @@ def make_images():
     return s1, s2, d1, d2
 
 def get_static_images():
+    """Return 2 pre-computed images from the static directory
+
+    Returns
+    -------
+    s1, s2 : Json strings for the rcparams of each image
+    d1, d2 : Urls for each file
+    id : The id of the dataset used
+    """
     files = glob('static/*_1.png')
     random.shuffle(files)
     file = files[0]
@@ -51,7 +66,7 @@ def get_static_images():
     s2 = open('static/'+id + '_2.json').read()
     d1 = url_for('static', filename=id + '_1.png')
     d2 = url_for('static', filename=id + '_2.png')
-    return s1, s2, d1, d2
+    return s1, s2, d1, d2, id
 
 
 def get_styles():
@@ -141,11 +156,12 @@ def plot_generator():
     return plot_function, make_plot
 
 def serve_static_page():
-    s1, s2, url1, url2 = get_static_images()
+    """Serve the main page using pre-generaed images"""
+    s1, s2, url1, url2, plot_type = get_static_images()
 
     html = render_template('main_static.html', image_1=url1, image_2=url2,
                            style_1=s1, style_2=s2,
-                           plot_type=0)
+                           plot_type=plot_type)
     resp = make_response(html)
     user = request.cookies.get('user', str(random.randint(1, 1e9)))
     resp.set_cookie('user', user)
@@ -153,6 +169,9 @@ def serve_static_page():
 
 
 def serve_page():
+    """Serve the main page using dynamically-generated images"""
+    #this was a nice idea, but it leads to timeouts when deployed
+    #maybe you can get around this by using a background worker.
     s1, s2 = get_styles()
     assert s1 != s2
 
