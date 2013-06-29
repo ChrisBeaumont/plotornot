@@ -149,7 +149,7 @@ def save_vote(win, lose, plot_type=0, tie=False, **kwargs):
         client = pymongo.MongoClient(uri)
         db = client.heroku_app16597650
         db.votes.insert(post)
-    except pymongo.errors.OperationFailure:
+    except:
         pass
 
 
