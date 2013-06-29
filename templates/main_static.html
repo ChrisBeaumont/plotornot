@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plot or Not?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+
+  <style type="text/css">
+    span {
+        color:rgb(222, 45, 38);
+    }
+
+    a {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    h1 {
+        margin: 0px;
+        opacity: 0.85;
+    }
+
+    .hero-unit {
+        padding: 25px;
+    }
+
+    .span12 {
+        margin-left: 0px;
+    }
+
+    .plot {
+    }
+
+    .footer {
+    position: absolute;
+    right: 80px;
+    bottom: 10px;
+    }
+
+  </style>
+
+  <body>
+    <a href="https://github.com/ChrisBeaumont/plotornot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <div class="container">
+      <div class="span12">
+        <div class="hero-unit">
+          <h1> Plot Or <span>Not</span>?</h1>
+          <p> Vote on which matplotlib style you prefer. Let's build a better rcParams. </p>
+        </div>
+
+        <div class="row">
+          <div class="span5 plot">
+            <p class="center">
+            <img src="{{image_1}}" />
+            </P>
+          </div>
+
+          <div class="span2 ew center">
+          </div>
+
+          <div class="span5 plot">
+            <p class="center">
+            <img src="{{image_2}}" />
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="span5 plot">
+            <p class="center">
+              <form action="/vote/0" method="post" align='center'>
+                <input type="hidden" name="left" value="{{style_1}}">
+                <input type="hidden" name="right" value="{{style_2}}">
+                <input type="hidden" name="plot_type" value="{{plot_type}}">
+                <button class="btn btn-large btn-info" href="/" type='submit'>This
+                </button>
+              </form>
+            </p>
+          </div>
+
+          <div class="span2 ew center">
+            <form action="/vote/2" method="post" align='center'>
+                <input type="hidden" name="left" value="{{style_1}}">
+                <input type="hidden" name="right" value="{{style_2}}">
+                <input type="hidden" name="plot_type" value="{{plot_type}}">
+                <button class="btn btn-large btn-danger" href="/" type='submit'>Ew!
+            </form>
+          </div>
+
+          <div class="span5 plot">
+            <p class="center">
+              <form action="/vote/1" method="post" align='center'>
+                <input type="hidden" name="left" value="{{style_1}}">
+                <input type="hidden" name="right" value="{{style_2}}">
+                <input type="hidden" name="plot_type" value="{{plot_type}}">
+                <button class="btn btn-large btn-info" href="/" type='submit'>That
+                </button>
+              </form>
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">
+      By <a href="http://chrisbeaumont.org">Chris Beaumont </a> and <a href="http://adrian.pw"> Adrian Price-Whelan </a>
+    </div>
+  </body>
+</html>

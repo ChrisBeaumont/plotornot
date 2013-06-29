@@ -13,7 +13,7 @@ from glob import glob
 
 # Third-party
 from flask import (Flask, request, render_template,
-                   redirect, make_response)
+                   redirect, make_response, url_for)
 from matplotlib import (rcParamsDefault, rc_context,
                         rcParams,
                         rc_params_from_file)
@@ -25,6 +25,33 @@ import pymongo
 app = Flask(__name__)
 
 _all_colormaps = [m for m in plt.cm.datad]
+
+def make_images():
+    s1, s2 = get_styles()
+    assert s1 != s2
+
+    plot_type, plot_func = plot_generator()
+
+    if plot_type == 'contourf':
+        random.shuffle(_all_colormaps)
+        cmap1, cmap2 = _all_colormaps[:2]
+        s1['cmap'] = cmap1
+        s2['cmap'] = cmap2
+
+    d1, d2 = map(plot_func, (s1, s2))
+    return s1, s2, d1, d2
+
+def get_static_images():
+    files = glob('static/*_1.png')
+    random.shuffle(files)
+    file = files[0]
+    path, fname = os.path.split(file)
+    id = fname.split('_')[0]
+    s1 = open('static/'+id + '_1.json').read()
+    s2 = open('static/'+id + '_2.json').read()
+    d1 = url_for('static', filename=id + '_1.png')
+    d2 = url_for('static', filename=id + '_2.png')
+    return s1, s2, d1, d2
 
 
 def get_styles():
@@ -113,6 +140,17 @@ def plot_generator():
 
     return plot_function, make_plot
 
+def serve_static_page():
+    s1, s2, url1, url2 = get_static_images()
+
+    html = render_template('main_static.html', image_1=url1, image_2=url2,
+                           style_1=s1, style_2=s2,
+                           plot_type=0)
+    resp = make_response(html)
+    user = request.cookies.get('user', str(random.randint(1, 1e9)))
+    resp.set_cookie('user', user)
+    return resp
+
 
 def serve_page():
     s1, s2 = get_styles()
@@ -177,8 +215,9 @@ def vote(winner):
 
 @app.route("/")
 def main():
-    return serve_page()
+    return serve_static_page()
+    #return serve_page()
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
