@@ -75,6 +75,8 @@ def get_styles():
     random.shuffle(files)
 
     styles = []
+    used_default = False
+
     for f in files[:2]:
         this_rc = rcParamsDefault.copy()
         if os.path.splitext(f)[1] == '.json':
@@ -82,8 +84,13 @@ def get_styles():
         else:
             s = rc_params_from_file(f)
 
-        for k, v in s.items():
-            this_rc[k] = v
+        this_rc.update(s)
+
+        #with some probability, use default
+        if random.random() > .9 and not used_default:
+            this_rc = rcParamsDefault.copy()
+            used_default = True
+
         styles.append(this_rc)
     return styles
 
